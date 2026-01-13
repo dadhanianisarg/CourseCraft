@@ -1,6 +1,6 @@
 # CourseCraft Online Education Platform (MERN App) [Website Link](https://)
 
-![Main Page](images/mainpage.png)
+![Main Page]()
 
 ## Project Description
 
