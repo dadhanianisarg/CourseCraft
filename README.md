@@ -1,4 +1,4 @@
-# CourseCraft Online Education Platform (MERN App) [Website Link](https://CourseCraft-frontend.vercel.app/)
+# CourseCraft Online Education Platform (MERN App) [Website Link](https://)
 
 ![Main Page](images/mainpage.png)
 
