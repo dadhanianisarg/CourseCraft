@@ -25,8 +25,12 @@ exports.resetPasswordToken = async (req, res) => {
 		);
 		console.log("DETAILS", updatedDetails);
 
-		const url = `http://localhost:3000/update-password/${token}`;
+		const baseUrl =
+			process.env.NODE_ENV === "production"
+				? process.env.FRONTEND_URL
+				: "http://localhost:3000";
 
+		const url = `${baseUrl}/update-password/${token}`;
 		await mailSender(
 			email,
 			"Password Reset",
