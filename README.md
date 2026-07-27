@@ -1,212 +1,417 @@
-# CourseCraft Online Education Platform (MERN App) [Website Link](https://)
+# 🚀 CourseCraft — Next-Gen Online Education & Ed-Tech Platform
 
-![Main Page]()
+[![React](https://img.shields.io/badge/React-18.2.0-blue.svg?logo=react)](https://reactjs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-v16%2B-brightgreen.svg?logo=node.js)](https://nodejs.org/)
+[![Express.js](https://img.shields.io/badge/Express.js-4.18.2-lightgrey.svg?logo=express)](https://expressjs.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-green.svg?logo=mongodb)](https://www.mongodb.com/)
+[![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-3.2.7-38B2AC.svg?logo=tailwind-css)](https://tailwindcss.com/)
+[![Redux Toolkit](https://img.shields.io/badge/Redux%20Toolkit-1.9.5-764ABC.svg?logo=redux)](https://redux-toolkit.js.org/)
+[![Razorpay](https://img.shields.io/badge/Payment-Razorpay-02042B.svg?logo=razorpay)](https://razorpay.com/)
+[![Cloudinary](https://img.shields.io/badge/Media-Cloudinary-3448C5.svg?logo=cloudinary)](https://cloudinary.com/)
+[![License](https://img.shields.io/badge/License-ISC-blue.svg)](#license)
 
-## Project Description
+**CourseCraft** is a full-stack, enterprise-grade Ed-Tech Learning Management System (LMS) designed to deliver a seamless, interactive, and engaging learning experience for students, while equipping instructors with rich tools to create, manage, and monetize educational content globally.
 
-CourseCraft is a fully functional ed-tech platform that enables users to create, consume,
-and rate educational content. The platform is built using the MERN stack, which includes
-ReactJS, NodeJS, MongoDB, and ExpressJS.
-CourseCraft aims to provide:
-* A seamless and interactive learning experience for students, making education
-more accessible and engaging.
-* A platform for instructors to showcase their expertise and connect with learners
-across the globe.
-In the following sections, we will cover the technical details of the platform, including:
-1. System architecture: The high-level overview of the platform's components and
-diagrams of the architecture.
-2. Front-end: The description of the front-end architecture, user interface design,
-features, and functionalities of the front-end, and frameworks, libraries, and tools
-used.
-3. Back-end: The description of the back-end architecture, features and functionalities of
-the back-end, frameworks, libraries, tools used, and data models and database schema.
-4. API Design: The description of the API design, list of API endpoints, their
-functionalities, and sample API requests and responses.
-5. Deployment: The description of the deployment process, hosting environment and
-infrastructure, and deployment scripts and configuration.
-6. Testing: The description of the testing process, types of testing, test frameworks and
-tools used.
-7. Future Enhancements: The list of potential future enhancements to the platform,
-explanation of how these enhancements would improve the platform, estimated
-timeline and priority for implementing these enhancements.
+---
 
-In summary, CourseCraft is a versatile and intuitive ed-tech platform that is designed to
-provide an immersive learning experience to students and a platform for instructors to
-showcase their expertise. In the following sections, we will delve into the technical details
-of the platform, which will provide a comprehensive understanding of the platform's
-features and functionalities.
+## 📌 Table of Contents
 
-## System Architecture
+- [Overview](#-overview)
+- [Key Features](#-key-features)
+  - [👨‍🎓 Student Portal](#-student-portal)
+  - [👩‍🏫 Instructor Portal](#-instructor-portal)
+  - [🔒 Security & Authentication](#-security--authentication)
+- [Tech Stack](#-tech-stack)
+- [System Architecture](#-system-architecture)
+- [Database Schema & Data Models](#-database-schema--data-models)
+- [Project Directory Structure](#-project-directory-structure)
+- [API Reference](#-api-reference)
+- [Environment Variables](#-environment-variables)
+- [Getting Started](#-getting-started)
+- [Database Seeding](#-database-seeding)
+- [Deployment](#-deployment)
+- [Future Enhancements](#-future-enhancements)
+- [License](#-license)
 
-The CourseCraft ed-tech platform consists of three main components: the front end, the
-back end, and the database. The platform follows a client-server architecture, with the
-front end serving as the client and the back end and database serving as the server.
+---
 
-### Front-end 
+## 🌐 Overview
 
-The front end of the platform is built using ReactJS, ReactJS allows for the creation of dynamic and responsive user
-interfaces, which are critical for providing an engaging learning experience to the students.
-The front end communicates with the back end using RESTful API calls
+CourseCraft addresses the modern challenge of online education by offering an all-in-one ed-tech ecosystem. Built on the **MERN Stack (MongoDB, Express.js, React, Node.js)**, CourseCraft bridges the gap between students seeking quality instruction and instructors looking to publish and track multi-media courses.
 
-### Back-end 
+### Core Highlights:
+- **Interactive Video Player**: Seamless lecture consumption with sub-section navigation and real-time completion tracking.
+- **Multi-Step Course Creation Wizard**: Instructors can dynamically structure courses into sections, subsections, and video lectures.
+- **Secure Payment Gateway Integration**: Native checkout powered by **Razorpay** with automated email payment receipts.
+- **Cloud-Based Media Management**: Media streaming and asset storage handled via **Cloudinary**.
+- **Real-Time Instructor Analytics**: Interactive performance dashboards using **Chart.js** displaying student enrollment and total revenue metrics.
 
-The back end of the platform is built using NodeJS and ExpressJS,. The back end
-provides APIs for the front end to consume, which include functionalities such as user
-authentication, course creation, and course consumption. The back end also handles the
-logic for processing and storing the course content and user data.
+---
 
+## ✨ Key Features
 
-### Database
+### 👨‍🎓 Student Portal
+* **Course Exploration & Cataloging**: Browse courses categorized by domain (Web Development, Data Science, AI/ML, Cloud Computing, etc.) with advanced filtering.
+* **Course Landing Pages**: Detailed course views with preview video, total duration, curriculum breakdown, student ratings, and instructor details.
+* **Cart & Wishlist Management**: Add courses to cart, review items, and manage wishlist state powered by Redux.
+* **Instant Checkout**: Purchase courses via Razorpay payment gateway integration with instant enrollment.
+* **Interactive Learning Dashboard**: Dedicated view for watching video lectures, marking lessons as complete, and viewing progress bars.
+* **Ratings & Reviews**: Rate courses on a 5-star scale and provide written reviews once enrolled.
+* **Profile Management**: Update personal details, change account password, and upload custom avatars to Cloudinary.
 
-The database for the platform is built using MongoDB, which is a NoSQL database that
-provides a flexible and scalable data storage solution. MongoDB allows for the storage of
-unstructured and semi-structured data. The database stores the course content, user data, and other
-relevant information related to the platform.
+### 👩‍🏫 Instructor Portal
+* **Multi-Step Course Creation Wizard**:
+  1. **Course Information**: Title, description, tags, category, pricing, thumbnail upload, and requirements/instructions.
+  2. **Course Builder**: Add, edit, reorder, or delete course sections and subsections (video content upload & duration calculation).
+  3. **Publishing Control**: Toggle courses between `Draft` and `Published` states.
+* **Instructor Dashboard & Analytics**:
+  - Interactive visual charts (Chart.js) showing total students enrolled and revenue per course.
+  - Quick summary cards for overall performance metrics.
+* **Course Management**: View all created courses, inspect enrollment numbers, edit existing content, or remove courses.
 
+### 🔒 Security & Authentication
+* **Email Verification via OTP**: One-Time Passwords (OTP) sent to user emails during signup powered by Nodemailer.
+* **Role-Based Access Control (RBAC)**: Enforced backend middleware (`isStudent`, `isInstructor`, `isAdmin`) safeguarding sensitive endpoints.
+* **JWT & Cookie Authentication**: Secure HTTP-only cookies and JSON Web Tokens for session management.
+* **Password Encryption**: Password hashing utilizing `bcrypt`.
+* **Password Reset Workflow**: Tokenized password reset links sent via email with expiration limits.
 
-### Architecture Diagram
+---
 
-Here is a high-level diagram that illustrates the architecture of the CourseCraft ed-tech
-platform:
+## 🛠 Tech Stack
 
-![Architecture](images/architecture.png)
+### **Frontend (Client)**
+- **Framework**: React 18 (CRA)
+- **State Management**: Redux Toolkit (`@reduxjs/toolkit`, `react-redux`)
+- **Styling**: Tailwind CSS, Custom CSS (`richblack` dark mode theme system)
+- **Routing**: React Router v6 (`react-router-dom`)
+- **Media Player**: Video-React (`video-react`)
+- **Data Visualization**: Chart.js (`chart.js`, `react-chartjs-2`)
+- **Forms & Validation**: React Hook Form (`react-hook-form`), React Dropzone (`react-dropzone`)
+- **UI Utilities**: React Hot Toast, Swiper JS, React Type Animation, React Rating Stars, React Icons
 
-## Front End
+### **Backend (Server)**
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Database**: MongoDB with Mongoose ODM
+- **Payment Processing**: Razorpay Node SDK (`razorpay`)
+- **File & Media Storage**: Cloudinary SDK (`cloudinary`, `express-fileupload`)
+- **Mailing Service**: Nodemailer (`nodemailer`)
+- **Security**: JSON Web Token (`jsonwebtoken`), Bcrypt (`bcrypt`), Cookie Parser (`cookie-parser`), CORS (`cors`)
 
-The front end of CourseCraft has all the necessary pages that an ed-tech platform should
-have. Some of these pages are:
+---
 
-### For Students:
-* Homepage: This page will have a brief introduction to the platform, as well as links
-to the course list and user details.
-* Course List: This page will have a list of all the courses available on the platform,
-along with their descriptions and ratings.
-* Wishlist: This page will display all the courses that a student has added to their
-wishlist.
-* Cart Checkout: This page will allow the user to complete the course purchase.
-* Course Content: This page will have the course content for a particular course,
-including videos, and other related material.
-* User Details: This page will have details about the student's account, including
-their name, email, and other relevant information.
-* User Edit Details: This page will allow the student to edit their account details.
+## 🏗 System Architecture
 
+CourseCraft follows a decoupled Client-Server RESTful Architecture:
 
-### For Instructors:
-* Dashboard: This page will have an overview of the instructor's courses, as well as
-the ratings and feedback for each course.
-* Insights: This page will have detailed insights into the instructor's courses,
-including the number of views, clicks, and other relevant metrics.
-* Course Management Pages: These pages will allow the instructor to create, update,
-and delete courses, as well as manage the course content and pricing.
-* View and Edit Profile Details: These pages will allow the instructor to view and edit
-their account details.
-PAGE 3
-For Admin (this is for future scope):
-* Dashboard: This page will have an overview of the platform's courses, instructors,
-and students.
-* Insights: This page will have detailed insights into the platform's metrics, including
-the number of registered users, courses, and revenue.
-* Instructor Management: This page will allow the admin to manage the platform's
-instructors, including their account details, courses, and ratings.
-* Other Relevant Pages: The admin will also have access to other relevant pages, such
-as user management and course management pages.
+```
++-----------------------------------------------------------------------+
+|                             CLIENT (React)                            |
+|  +-------------------+   +--------------------+   +----------------+  |
+|  | Student Dashboard |   | Instructor Dashboard|   | Course Catalog |  |
+|  +---------+---------+   +---------+----------+   +-------+--------+  |
+|            |                       |                      |           |
+|            +-----------------------+----------------------+           |
+|                                    | (REST APIs / JSON)               |
++------------------------------------|----------------------------------+
+                                     v
++-----------------------------------------------------------------------+
+|                           SERVER (Express / Node)                     |
+|  +--------------------+  +--------------------+  +-----------------+  |
+|  | Auth Middleware    |  | Role Controller    |  | Payment Service |  |
+|  | (JWT & Bcrypt)     |  | (Student/Inst/Admin)|  | (Razorpay SDK)  |  |
+|  +---------+----------+  +---------+----------+  +--------+--------+  |
++------------|-----------------------|----------------------|-----------+
+             |                       |                      |
+             v                       v                      v
++-----------------------+  +-------------------+  +---------------------+
+| MongoDB (Atlas)       |  | Cloudinary API    |  | Nodemailer (SMTP)   |
+| Database & Schemas    |  | Videos & Images   |  | OTP & Email Notices |
++-----------------------+  +-------------------+  +---------------------+
+```
 
-To build the front end, we use frameworks and libraries such as ReactJS, We also use CSS and Tailwind, which are
-styling frameworks that help make the user interface look good and responsive.
-To manage the state of the application, we use Redux, which is a popular state management
-library for React. 
+---
 
-## Back End
+## 📊 Database Schema & Data Models
 
-Description of the Back-end Architecture: 
-CourseCraft uses a monolithic architecture, with the backend built using Node.js and
-Express.js, and MongoDB as the primary database. 
+CourseCraft relies on 9 interconnected Mongoose models:
 
-Features and Functionalities of the Back-end: 
-The back end of CourseCraft provides a range of features and functionalities, including:
-1. User authentication and authorization: Students and instructors can sign up and log in
-to the platform using their email addresses and password. The platform also supports
-OTP (One-Time Password) verification and forgot password functionality for added
-security.
-1. Course management: Instructors can create, read, update, and delete courses, as well 
-as manage course content and media. Students can view and rate courses.
-1. Payment Integration: Students will purchase and enrol on courses by completing the
-checkout flow that is followed by Razorpay integration for payment handling.
-1. Cloud-based media management: CourseCraft uses Cloudinary, a cloud-based media
-management service, to store and manage all media content, including images, videos,
-and documents.
-1. Markdown formatting: Course content in document format is stored in Markdown
-format, which allows for easier display and rendering on the front end.
+| Model | Key Fields & Relationships |
+| :--- | :--- |
+| **`User`** | `firstName`, `lastName`, `email`, `password`, `accountType` (Student/Instructor/Admin), `additionalDetails` (ref: Profile), `courses` [ref: Course], `courseProgress` [ref: courseProgress], `image` |
+| **`Profile`** | `gender`, `dateOfBirth`, `about`, `contactNumber` |
+| **`Course`** | `courseName`, `courseDescription`, `instructor` (ref: User), `whatYouWillLearn`, `courseContent` [ref: Section], `ratingAndReviews` [ref: RatingAndReview], `price`, `thumbnail`, `tag`, `category` (ref: Category), `studentsEnrolled` [ref: User], `instructions`, `status` (Draft/Published) |
+| **`Section`** | `sectionName`, `subSection` [ref: SubSection] |
+| **`SubSection`** | `title`, `timeDuration`, `description`, `videoUrl` |
+| **`CourseProgress`** | `courseID` (ref: Course), `userId` (ref: User), `completedVideos` [ref: SubSection] |
+| **`Category`** | `name`, `description`, `courses` [ref: Course] |
+| **`RatingAndReview`** | `user` (ref: User), `rating`, `review`, `course` (ref: Course) |
+| **`OTP`** | `email`, `otp`, `createdAt` (expires automatically via TTL index) |
 
-Frameworks, Libraries, and Tools used: 
-The back end of CourseCraft uses a range of frameworks, libraries, and tools to ensure its
-functionality and performance, including:
-1. Node.js: Node.js is used as the primary framework for the back end.
-2. MongoDB: MongoDB is used as the primary database, providing a flexible and scalable
-data storage solution.
-3. Express.js: Express.js is used as a web application framework, providing a range of
-features and tools for building web applications.
-4. JWT: JWT (JSON Web Tokens) are used for authentication and authorization,
-providing a secure and reliable way to manage user credentials.
-5. Bcrypt: Bcrypt is used for password hashing, adding an extra layer of security to user
-data.
-6. Mongoose: Mongoose is used as an Object Data Modeling (ODM) library, providing a
-way to interact with MongoDB using JavaScript
+---
 
-### Data Models and Database Schema: 
-The back end of CourseCraft uses a range of data models and database schemas to
-manage data, including:
-1. Student schema: Includes fields such as name, email, password, and course details
-for each student.
-2. Instructor schema: Includes fields such as name, email, password, and course
-details for each instructor.
-3. Course schema: Includes fields such as course name, description, instructor details,
-and media content.
+## 📁 Project Directory Structure
 
-Overall, the back-end of CourseCraft is designed to provide a robust and scalable solution
-for an ed-tech platform, with a focus on security, reliability, and ease of use. By using the
-right frameworks, libraries, and tools, we can ensure that the platform functions smoothly
-and provides an optimal user experience for all its users.
+```text
+CourseCraft-An-Online-Education-Platform/
+├── public/                     # Static assets & index.html
+├── server/                     # Backend Node/Express Server
+│   ├── config/                 # DB, Cloudinary, Razorpay & Mailer configs
+│   │   ├── database.js
+│   │   ├── cloudinary.js
+│   │   ├── razorpay.js
+│   │   └── nodemailer.js
+│   ├── controllers/            # API Route Logic & Handlers
+│   │   ├── Auth.js
+│   │   ├── Category.js
+│   │   ├── ContactUs.js
+│   │   ├── Course.js
+│   │   ├── courseProgress.js
+│   │   ├── Payments.js
+│   │   ├── Profile.js
+│   │   ├── RatingAndReview.js
+│   │   ├── ResetPassword.js
+│   │   ├── Section.js
+│   │   └── Subsection.js
+│   ├── mail/                   # HTML Email Templates (OTP, Payment Success, etc.)
+│   ├── middlewares/            # Auth & Role Control Middlewares
+│   │   └── auth.js
+│   ├── models/                 # Mongoose Data Models
+│   │   ├── Category.js
+│   │   ├── Course.js
+│   │   ├── CourseProgress.js
+│   │   ├── OTP.js
+│   │   ├── Profile.js
+│   │   ├── RatingAndRaview.js
+│   │   ├── Section.js
+│   │   ├── SubSection.js
+│   │   └── User.js
+│   ├── routes/                 # Express Express Router Definitions
+│   │   ├── Contact.js
+│   │   ├── Course.js
+│   │   ├── Payments.js
+│   │   ├── Profile.js
+│   │   └── User.js
+│   ├── utils/                  # Mail Sender & Cloudinary Uploader Utilities
+│   ├── seedCategories.js       # Database Category Seeder Script
+│   ├── index.js                # Express Application Entry Point
+│   └── package.json            # Server dependencies
+├── src/                        # Frontend React Application
+│   ├── assets/                 # Images, Logos, Icons & Banners
+│   ├── components/             # Reusable UI Components
+│   │   ├── common/             # Navbar, Footer, Modals, Rating Stars
+│   │   ├── ContactPage/        # Contact forms
+│   │   └── core/               # Feature-specific components
+│   │       ├── AboutPage/
+│   │       ├── Auth/           # Login, Signup, Protected/Open Routes
+│   │       ├── Catalog/        # Category course cards & slider
+│   │       ├── Course/         # Course details page components
+│   │       ├── Dashboard/      # Student & Instructor Dashboard views
+│   │       ├── HomePage/       # Hero section, Code blocks, Timeline
+│   │       └── ViewCourse/     # Video player & lesson navigation
+│   ├── data/                   # Navbar links, Footer links, Static Data
+│   ├── hooks/                  # Custom React Hooks
+│   ├── pages/                  # Top-level Page Components
+│   ├── reducer/                # Root Redux Reducer
+│   ├── services/               # Axios API Services & Endpoints
+│   ├── slices/                 # Redux Slices (auth, cart, course, profile, viewCourse)
+│   ├── utils/                  # Formatting & Constants Helpers
+│   ├── App.js                  # Main Application Router
+│   ├── index.js                # React Entry Point
+│   └── index.css               # Global Tailwind CSS Styles
+├── tailwind.config.js          # Tailwind CSS Configuration & Theme Extension
+├── package.json                # Frontend dependencies & root scripts
+└── README.md                   # Documentation
+```
 
-![Database Schema](images/schema.png)
+---
 
-## API Design
+## 📡 API Reference
 
-The CourseCraft platform's API is designed following the REST architectural style. The
-API is implemented using Node.js and Express.js. It uses JSON for data exchange and
-follows standard HTTP request methods such as GET, POST, PUT, and DELETE.
-Sample list of API endpoints and their functionalities: 
-1. /api/auth/signup (POST) - Create a new user (student or instructor) account.
-2. /api/auth/login (POST) – Log in using existing credentials and generate a JWT
-token.
-3. /api/auth/verify-otp (POST) - Verify the OTP sent to the user's registered email.
-4. /api/auth/forgot-password (POST) - Send an email with a password reset link to
-the registered email.
-5. /api/courses (GET) - Get a list of all available courses.
-6. /api/courses/:id (GET) - Get details of a specific course by ID.
-7. /api/courses (POST) - Create a new course.
-8. /api/courses/:id (PUT) - Update an existing course by ID.
-9. /api/courses/:id (DELETE) - Delete a course by ID.
-10. /api/courses/:id/rate (POST) - Add a rating (out of 5) to a course.
-Sample API requests and responses: 
-1. GET /api/courses: Get all courses
-   * Response: A list of all courses in the database
-2. GET /api/courses/:id: Get a single course by ID
-   * Response: The course with the specified ID
-3. POST /api/courses: Create a new course
-   * Request: The course details in the request body
-   * Response: The newly created course
-4. PUT /api/courses/:id: Update an existing course by ID
-   * Request: The updated course details in the request body
-   * Response: The updated course
-5. DELETE /api/courses/:id: Delete a course by ID
-   * Response: A success message indicating that the course has been deleted.
+### 🔐 Auth Routes (`/api/v1/auth`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/sendotp` | Public | Send verification OTP to email |
+| `POST` | `/signup` | Public | Register new Student or Instructor account |
+| `POST` | `/login` | Public | Authenticate user & issue JWT |
+| `POST` | `/changepassword` | Authenticated | Change user account password |
+| `POST` | `/reset-password-token` | Public | Generate tokenized password reset link |
+| `POST` | `/reset-password` | Public | Reset password using token |
 
-In conclusion, the REST API design for the CourseCraft ed-tech platform is a crucial part
-of the project. The API endpoints and their functionalities are designed to ensure seamless
-communication between the front-end and back-end of the application. By following
-RESTful principles, the API will be scalable, maintainable, and reliable. The sample API
-requests and responses provided above illustrate how each endpoint will function and
-what kind of data it will accept or return. With this API design, CourseCraft will be able to
-provide a smooth user experience while ensuring security and stability.
+### 📚 Course Routes (`/api/v1/course`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/createCourse` | Instructor | Create new course |
+| `POST` | `/editCourse` | Instructor | Edit existing course details |
+| `DELETE`| `/deleteCourse` | Instructor | Delete a course |
+| `GET`  | `/getInstructorCourses` | Instructor | Fetch all courses created by instructor |
+| `POST` | `/addSection` | Instructor | Add section to course |
+| `POST` | `/updateSection` | Instructor | Update section title |
+| `POST` | `/deleteSection` | Instructor | Delete section from course |
+| `POST` | `/addSubSection` | Instructor | Add subsection (video lecture) to section |
+| `POST` | `/updateSubSection` | Instructor | Update subsection details/video |
+| `POST` | `/deleteSubSection` | Instructor | Delete subsection |
+| `GET`  | `/getAllCourses` | Public | Fetch all published courses |
+| `POST` | `/getCourseDetails` | Public | Fetch single course public details |
+| `POST` | `/getFullCourseDetails` | Authenticated | Fetch full course details & user progress |
+| `POST` | `/updateCourseProgress` | Student | Mark lecture video as completed |
+| `POST` | `/createCategory` | Admin | Create new course category |
+| `GET`  | `/showAllCategories` | Public | List all categories |
+| `POST` | `/getCategoryPageDetails` | Public | Get courses by category |
+| `POST` | `/createRating` | Student | Add rating & review for enrolled course |
+| `GET`  | `/getAverageRating` | Public | Calculate course average rating |
+| `GET`  | `/getReviews` | Public | Fetch all platform reviews |
 
+### 👤 Profile Routes (`/api/v1/profile`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET`  | `/getUserDetails` | Authenticated | Fetch authenticated user profile |
+| `PUT`  | `/updateProfile` | Authenticated | Update user bio, DOB, gender, contact |
+| `PUT`  | `/updateDisplayPicture` | Authenticated | Upload new profile image to Cloudinary |
+| `DELETE`| `/deleteProfile` | Authenticated | Permanently delete user account |
+| `GET`  | `/getEnrolledCourses` | Student | Fetch enrolled courses & completion progress |
+| `GET`  | `/instructorDashboard` | Instructor | Fetch instructor statistics & chart data |
+
+### 💳 Payment Routes (`/api/v1/payment`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/capturePayment` | Student | Create Razorpay order for course purchase |
+| `POST` | `/verifyPayment` | Student | Verify Razorpay payment signature & enroll student |
+| `POST` | `/sendPaymentSuccessEmail` | Student | Send email receipt after successful payment |
+
+### 📧 Contact Route (`/api/v1/reach`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/contact` | Public | Submit contact us message |
+
+---
+
+## ⚙️ Environment Variables
+
+### 1. Backend Environment Configuration (`server/.env`)
+
+Create a `.env` file inside the `server/` directory:
+
+```env
+PORT=4000
+MONGODB_URL=mongodb+srv://<username>:<password>@cluster.mongodb.net/CourseCraftDb
+JWT_SECRET=your_jwt_secret_key
+
+# Nodemailer Credentials
+MAIL_HOST=smtp.gmail.com
+MAIL_USER=your_email@gmail.com
+MAIL_PASS=your_gmail_app_password
+MAIL_PORT=587
+
+# Cloudinary Credentials
+CLOUD_NAME=your_cloudinary_cloud_name
+API_KEY=your_cloudinary_api_key
+API_SECRET=your_cloudinary_api_secret
+FOLDER_NAME=CourseCraft
+
+# Razorpay Credentials
+RAZORPAY_KEY=your_razorpay_key_id
+RAZORPAY_SECRET=your_razorpay_secret
+RAZORPAY_WEBHOOK_SECRET=your_webhook_secret
+```
+
+### 2. Frontend Environment Configuration (`.env`)
+
+Create a `.env` file in the root project directory:
+
+```env
+REACT_APP_BASE_URL=http://localhost:4000
+REACT_APP_RAZORPAY_KEY=your_razorpay_key_id
+```
+
+---
+
+## 🚦 Getting Started
+
+### Prerequisites
+- [Node.js](https://nodejs.org/) (v16.0.0 or higher)
+- [MongoDB](https://www.mongodb.com/) (Local or Cloud Atlas Cluster)
+- [Cloudinary Account](https://cloudinary.com/) (For image and video uploads)
+- [Razorpay Account](https://razorpay.com/) (For payment gateway integration in test mode)
+
+### 💻 Installation & Setup
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/dadhanianisarg/CourseCraft.git
+   cd CourseCraft-An-Online-Education-Platform
+   ```
+
+2. **Install Client & Concurrently Dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Install Server Dependencies**:
+   ```bash
+   cd server
+   npm install
+   cd ..
+   ```
+
+4. **Configure Environment Variables**:
+   Set up both `server/.env` and root `.env` as documented in [Environment Variables](#-environment-variables).
+
+5. **Run the Application**:
+   Run both frontend and backend concurrently using the root npm script:
+   ```bash
+   npm run dev
+   ```
+   - **Frontend**: Running on `http://localhost:3000`
+   - **Backend API**: Running on `http://localhost:4000`
+
+---
+
+## 🌱 Database Seeding
+
+To populate initial course categories in MongoDB (e.g. Web Development, Data Science, AI/ML, DevOps, UI/UX Design):
+
+```bash
+cd server
+node seedCategories.js
+```
+
+---
+
+## 🌐 Deployment
+
+### **Frontend Deployment (Vercel)**
+1. Connect repository to [Vercel](https://vercel.com).
+2. Set Environment Variable: `REACT_APP_BASE_URL` pointing to live backend API URL.
+3. Build Command: `npm run build`
+4. Output Directory: `build`
+
+### **Backend Deployment (Render / Railway)**
+1. Create a Web Service on [Render](https://render.com).
+2. Root Directory: `server`
+3. Build Command: `npm install`
+4. Start Command: `node index.js`
+5. Configure environment variables in the service dashboard.
+
+---
+
+## 🔮 Future Enhancements
+
+- [ ] **Live Interactive Classes**: WebRTC or Zoom integration for live instructor sessions.
+- [ ] **Quiz & Assessment Engine**: Automated quizzes, coding tests, and assignment submissions.
+- [ ] **Certificates of Completion**: Automated PDF certificate generation upon 100% course progress.
+- [ ] **Discussion Forums**: Course-specific Q&A threads and student community channels.
+- [ ] **AI-Powered Recommendations**: Personalised course suggestions based on user learning history.
+
+---
+
+## 📜 License
+
+This project is licensed under the [ISC License](LICENSE).
+
+---
+
+<p center>
+  Made with ❤️ by <strong>CourseCraft Team</strong>
+</p>
