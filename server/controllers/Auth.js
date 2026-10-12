@@ -190,8 +190,7 @@ exports.sendotp = async (req, res) => {
 
     // If checkUserPresent is true and user found with provided email
     if (checkUserPresent && userExists) {
-      // Return 401 Unauthorized status code with error message
-      return res.status(401).json({
+      return res.status(400).json({
         success: false,
         message: `User is Already Registered`,
       })
@@ -202,14 +201,17 @@ exports.sendotp = async (req, res) => {
       lowerCaseAlphabets: false,
       specialChars: false,
     })
-    const result = await OTP.findOne({ otp: otp })
+    let result = await OTP.findOne({ otp: otp })
     console.log("Result is Generate OTP Func")
     console.log("OTP", otp)
     console.log("Result", result)
     while (result) {
       otp = otpGenerator.generate(6, {
         upperCaseAlphabets: false,
+        lowerCaseAlphabets: false,
+        specialChars: false,
       })
+      result = await OTP.findOne({ otp: otp })
     }
     const otpPayload = { email, otp }
     const otpBody = await OTP.create(otpPayload)

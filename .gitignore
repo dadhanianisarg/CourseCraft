@@ -12,3 +12,6 @@ build/
 
 # logs
 npm-debug.log*
+
+# local interview notes
+interview-questions.md
