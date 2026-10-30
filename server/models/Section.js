@@ -12,7 +12,7 @@ const sectionSchema = new mongoose.Schema({
 			ref: "SubSection",
 		},
 	],
-});
+}, { optimisticConcurrency: true });
 
 // Export the Section model
 module.exports = mongoose.model("Section", sectionSchema);

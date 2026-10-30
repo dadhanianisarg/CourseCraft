@@ -6,6 +6,7 @@ const User = require("../models/User");
 const { uploadImageToCloudinary } = require("../utils/imageUploader");
 const CourseProgress = require("../models/CourseProgress");
 const { convertSecondsToDuration } = require("../utils/secToDuration");
+const { sendVersionConflict, isVersionConflict } = require("../utils/concurrency");
 // Function to create a new course
 exports.createCourse = async (req, res) => {
   try {
@@ -141,6 +142,9 @@ exports.editCourse = async (req, res) => {
     if (!course) {
       return res.status(404).json({ error: "Course not found" });
     }
+    if (req.body.__v === undefined || Number(req.body.__v) !== course.__v) {
+      return sendVersionConflict(res);
+    }
 
     // If Thumbnail Image is found, update it
     if (req.files) {
@@ -156,6 +160,9 @@ exports.editCourse = async (req, res) => {
     // Update only the fields that are present in the request body
     for (const key in updates) {
       if (updates.hasOwnProperty(key)) {
+        if (key === "courseId" || key === "__v") {
+          continue;
+        }
         if (key === "tag" || key === "instructions") {
           course[key] = JSON.parse(updates[key]);
         } else {
@@ -192,6 +199,9 @@ exports.editCourse = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
+    if (isVersionConflict(error)) {
+      return sendVersionConflict(res);
+    }
     res.status(500).json({
       success: false,
       message: "Internal server error",

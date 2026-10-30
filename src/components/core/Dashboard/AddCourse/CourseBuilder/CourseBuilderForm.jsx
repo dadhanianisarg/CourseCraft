@@ -44,6 +44,7 @@ export default function CourseBuilderForm() {
           sectionName: data.sectionName,
           sectionId: editSectionName,
           courseId: course._id,
+          __v: course.courseContent.find((section) => section._id === editSectionName).__v,
         },
         token
       )

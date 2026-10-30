@@ -26,12 +26,15 @@ function loadScript(src) {
 
 export async function buyCourse(token, courses, userDetails, navigate, dispatch) {
     const toastId = toast.loading("Loading...");
+    const idempotencyKey = window.crypto.randomUUID();
+    dispatch(setPaymentLoading(true));
     try{
         //load the script
         const res = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
 
         if(!res) {
             toast.error("RazorPay SDK failed to load");
+            dispatch(setPaymentLoading(false));
             return;
         }
 
@@ -40,12 +43,14 @@ export async function buyCourse(token, courses, userDetails, navigate, dispatch)
                                 {courses},
                                 {
                                     Authorization: `Bearer ${token}`,
+                                    "Idempotency-Key": idempotencyKey,
                                 })
 
         if(!orderResponse.data.success) {
             throw new Error(orderResponse.data.message);
         }
         console.log("PRINTING orderResponse", orderResponse);
+        dispatch(setPaymentLoading(false));
         //options
         const options = {
             key: process.env.REACT_APP_RAZORPAY_KEY,
@@ -63,7 +68,7 @@ export async function buyCourse(token, courses, userDetails, navigate, dispatch)
                 //send successful wala mail
                 sendPaymentSuccessEmail(response, orderResponse.data.data.amount,token );
                 //verifyPayment
-                verifyPayment({...response, courses}, token, navigate, dispatch);
+                verifyPayment({...response, courses}, token, navigate, dispatch, idempotencyKey);
             }
         }
         //miss hogya tha 
@@ -72,12 +77,14 @@ export async function buyCourse(token, courses, userDetails, navigate, dispatch)
         paymentObject.on("payment.failed", function(response) {
             toast.error("oops, payment failed");
             console.log(response.error);
+            dispatch(setPaymentLoading(false));
         })
 
     }
     catch(error) {
         console.log("PAYMENT API ERROR.....", error);
         toast.error("Could not make Payment");
+        dispatch(setPaymentLoading(false));
     }
     toast.dismiss(toastId);
 }
@@ -98,12 +105,13 @@ async function sendPaymentSuccessEmail(response, amount, token) {
 }
 
 //verify payment
-async function verifyPayment(bodyData, token, navigate, dispatch) {
+async function verifyPayment(bodyData, token, navigate, dispatch, idempotencyKey) {
     const toastId = toast.loading("Verifying Payment....");
     dispatch(setPaymentLoading(true));
     try{
         const response  = await apiConnector("POST", COURSE_VERIFY_API, bodyData, {
             Authorization:`Bearer ${token}`,
+            "Idempotency-Key": idempotencyKey,
         })
 
         if(!response.data.success) {

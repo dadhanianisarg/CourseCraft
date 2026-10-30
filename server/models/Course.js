@@ -57,7 +57,7 @@ const coursesSchema = new mongoose.Schema({
 		type:Date,
 		default:Date.now
 	},
-});
+}, { optimisticConcurrency: true });
 
 // Export the Courses model
 module.exports = mongoose.model("Course", coursesSchema);

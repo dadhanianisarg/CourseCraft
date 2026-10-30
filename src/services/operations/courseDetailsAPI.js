@@ -122,7 +122,11 @@ export const editCourseDetails = async (data, token) => {
     result = response?.data?.data
   } catch (error) {
     console.log("EDIT COURSE API ERROR............", error)
-    toast.error(error.message)
+    toast.error(
+      error.response?.status === 409
+        ? "This resource was modified by someone else. Please refresh and try again."
+        : error.message
+    )
   }
   toast.dismiss(toastId)
   return result
@@ -188,7 +192,11 @@ export const updateSection = async (data, token) => {
     result = response?.data?.data
   } catch (error) {
     console.log("UPDATE SECTION API ERROR............", error)
-    toast.error(error.message)
+    toast.error(
+      error.response?.status === 409
+        ? "This resource was modified by someone else. Please refresh and try again."
+        : error.message
+    )
   }
   toast.dismiss(toastId)
   return result
@@ -210,7 +218,11 @@ export const updateSubSection = async (data, token) => {
     result = response?.data?.data
   } catch (error) {
     console.log("UPDATE SUB-SECTION API ERROR............", error)
-    toast.error(error.message)
+    toast.error(
+      error.response?.status === 409
+        ? "This resource was modified by someone else. Please refresh and try again."
+        : error.message
+    )
   }
   toast.dismiss(toastId)
   return result

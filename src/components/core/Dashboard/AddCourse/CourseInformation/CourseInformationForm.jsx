@@ -92,6 +92,7 @@ export default function CourseInformationForm() {
         const formData = new FormData()
         // console.log(data)
         formData.append("courseId", course._id)
+        formData.append("__v", course.__v)
         if (currentValues.courseTitle !== course.courseName) {
           formData.append("courseName", data.courseTitle)
         }

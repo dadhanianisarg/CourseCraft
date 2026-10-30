@@ -16,7 +16,7 @@ const profileSchema = new mongoose.Schema({
 		type: Number,
 		trim: true,
 	},
-});
+}, { optimisticConcurrency: true });
 
 // Export the Profile model
 module.exports = mongoose.model("Profile", profileSchema);

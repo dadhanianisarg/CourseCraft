@@ -2,6 +2,7 @@
 const Section = require("../models/Section")
 const SubSection = require("../models/SubSection")
 const { uploadImageToCloudinary } = require("../utils/imageUploader")
+const { sendVersionConflict, isVersionConflict } = require("../utils/concurrency")
 
 // Create a new sub-section for a given section
 exports.createSubSection = async (req, res) => {
@@ -54,7 +55,7 @@ exports.createSubSection = async (req, res) => {
 
 exports.updateSubSection = async (req, res) => {
   try {
-    const { sectionId, subSectionId, title, description } = req.body
+    const { sectionId, subSectionId, title, description, __v } = req.body
     const subSection = await SubSection.findById(subSectionId)
 
     if (!subSection) {
@@ -62,6 +63,9 @@ exports.updateSubSection = async (req, res) => {
         success: false,
         message: "SubSection not found",
       })
+    }
+    if (__v === undefined || Number(__v) !== subSection.__v) {
+      return sendVersionConflict(res)
     }
 
     if (title !== undefined) {
@@ -97,6 +101,9 @@ exports.updateSubSection = async (req, res) => {
     })
   } catch (error) {
     console.error(error)
+    if (isVersionConflict(error)) {
+      return sendVersionConflict(res)
+    }
     return res.status(500).json({
       success: false,
       message: "An error occurred while updating the section",

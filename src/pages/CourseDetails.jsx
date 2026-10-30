@@ -174,8 +174,8 @@ function CourseDetails() {
               <p className="space-x-3 pb-4 text-3xl font-semibold text-richblack-5">
                 Rs. {price}
               </p>
-              <button className="yellowButton" onClick={handleBuyCourse}>
-                Buy Now
+              <button className="yellowButton" onClick={handleBuyCourse} disabled={paymentLoading}>
+                {paymentLoading ? "Processing..." : "Buy Now"}
               </button>
               <button className="blackButton">Add to Cart</button>
             </div>
@@ -186,6 +186,7 @@ function CourseDetails() {
               course={response?.data?.courseDetails}
               setConfirmationModal={setConfirmationModal}
               handleBuyCourse={handleBuyCourse}
+              paymentLoading={paymentLoading}
             />
           </div>
         </div>

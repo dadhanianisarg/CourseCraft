@@ -6,6 +6,7 @@ const User = require("../models/User")
 const { uploadImageToCloudinary } = require("../utils/imageUploader")
 const mongoose = require("mongoose")
 const { convertSecondsToDuration } = require("../utils/secToDuration")
+const { sendVersionConflict, isVersionConflict } = require("../utils/concurrency")
 // Method for updating a profile
 exports.updateProfile = async (req, res) => {
   try {
@@ -16,18 +17,19 @@ exports.updateProfile = async (req, res) => {
       about = "",
       contactNumber = "",
       gender = "",
+      __v,
     } = req.body
     const id = req.user.id
 
     // Find the profile by id
     const userDetails = await User.findById(id)
     const profile = await Profile.findById(userDetails.additionalDetails)
-
-    const user = await User.findByIdAndUpdate(id, {
-      firstName,
-      lastName,
-    })
-    await user.save()
+    if (!profile) {
+      return res.status(404).json({ success: false, message: "Profile not found" })
+    }
+    if (__v === undefined || Number(__v) !== profile.__v) {
+      return sendVersionConflict(res)
+    }
 
     // Update the profile fields
     profile.dateOfBirth = dateOfBirth
@@ -37,6 +39,14 @@ exports.updateProfile = async (req, res) => {
 
     // Save the updated profile
     await profile.save()
+
+    const user = await User.findById(id)
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" })
+    }
+    user.firstName = firstName
+    user.lastName = lastName
+    await user.save()
 
     // Find the updated user details
     const updatedUserDetails = await User.findById(id)
@@ -50,6 +60,9 @@ exports.updateProfile = async (req, res) => {
     })
   } catch (error) {
     console.log(error)
+    if (isVersionConflict(error)) {
+      return sendVersionConflict(res)
+    }
     return res.status(500).json({
       success: false,
       error: error.message,

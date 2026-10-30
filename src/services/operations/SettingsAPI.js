@@ -64,7 +64,11 @@ export function updateProfile(token, formData) {
       toast.success("Profile Updated Successfully")
     } catch (error) {
       console.log("UPDATE_PROFILE_API API ERROR............", error)
-      toast.error("Could Not Update Profile")
+      toast.error(
+        error.response?.status === 409
+          ? "This resource was modified by someone else. Please refresh and try again."
+          : "Could Not Update Profile"
+      )
     }
     toast.dismiss(toastId)
   }

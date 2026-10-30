@@ -12,6 +12,8 @@ const cors = require("cors");
 const { cloudinaryConnect } = require("./config/cloudinary");
 const fileUpload = require("express-fileupload");
 const dotenv = require("dotenv");
+const { isVersionConflict, sendVersionConflict } = require("./utils/concurrency");
+const IdempotencyKey = require("./models/IdempotencyKey");
 
 dotenv.config();
 const PORT = process.env.PORT || 4000;
@@ -46,6 +48,18 @@ app.use("/api/v1/course", courseRoutes);
 app.use("/api/v1/payment", paymentRoutes);
 app.use("/api/v1/reach", contactUsRoute);
 
+app.use((error, req, res, next) => {
+	if (req.idempotencyRecord) {
+		IdempotencyKey.findByIdAndDelete(req.idempotencyRecord._id).catch((cleanupError) => {
+			console.error("Could not clear idempotency record:", cleanupError);
+		});
+	}
+	if (isVersionConflict(error)) {
+		return sendVersionConflict(res);
+	}
+	next(error);
+});
+
 //def route
 
 app.get("/", (req, res) => {
@@ -58,4 +72,3 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
 	console.log(`App is running at ${PORT}`)
 })
-

@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "test:optimistic-concurrency": "node scripts/test-optimistic-concurrency.js",
+    "test:payment-idempotency": "node scripts/test-payment-idempotency.js"
   },
   "keywords": [],
   "author": "",
