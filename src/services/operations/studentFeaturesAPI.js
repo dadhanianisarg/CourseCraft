@@ -4,7 +4,9 @@ import { apiConnector } from "../apiconnector";
 import rzpLogo from "../../assets/Logo/rzp_logo.png"
 import { setPaymentLoading } from "../../slices/courseSlice";
 import { resetCart } from "../../slices/cartSlice";
+import { clearCheckoutKey } from "../../utils/checkoutKey";
 
+const activeCheckoutKeys = new Set();
 
 const {COURSE_PAYMENT_API, COURSE_VERIFY_API, SEND_PAYMENT_SUCCESS_EMAIL_API} = studentEndpoints;
 
@@ -24,9 +26,20 @@ function loadScript(src) {
 }
 
 
-export async function buyCourse(token, courses, userDetails, navigate, dispatch) {
+export async function buyCourse(
+    token,
+    courses,
+    userDetails,
+    navigate,
+    dispatch,
+    idempotencyKey,
+    cartKey
+) {
+    if (activeCheckoutKeys.has(idempotencyKey)) {
+        return;
+    }
+    activeCheckoutKeys.add(idempotencyKey);
     const toastId = toast.loading("Loading...");
-    const idempotencyKey = window.crypto.randomUUID();
     dispatch(setPaymentLoading(true));
     try{
         //load the script
@@ -34,6 +47,7 @@ export async function buyCourse(token, courses, userDetails, navigate, dispatch)
 
         if(!res) {
             toast.error("RazorPay SDK failed to load");
+            activeCheckoutKeys.delete(idempotencyKey);
             dispatch(setPaymentLoading(false));
             return;
         }
@@ -68,7 +82,19 @@ export async function buyCourse(token, courses, userDetails, navigate, dispatch)
                 //send successful wala mail
                 sendPaymentSuccessEmail(response, orderResponse.data.data.amount,token );
                 //verifyPayment
-                verifyPayment({...response, courses}, token, navigate, dispatch, idempotencyKey);
+                verifyPayment(
+                    {...response, courses},
+                    token,
+                    navigate,
+                    dispatch,
+                    idempotencyKey,
+                    cartKey
+                );
+            },
+            ondismiss: function() {
+                clearCheckoutKey(cartKey);
+                activeCheckoutKeys.delete(idempotencyKey);
+                dispatch(setPaymentLoading(false));
             }
         }
         //miss hogya tha 
@@ -77,13 +103,15 @@ export async function buyCourse(token, courses, userDetails, navigate, dispatch)
         paymentObject.on("payment.failed", function(response) {
             toast.error("oops, payment failed");
             console.log(response.error);
+            clearCheckoutKey(cartKey);
+            activeCheckoutKeys.delete(idempotencyKey);
             dispatch(setPaymentLoading(false));
         })
-
     }
     catch(error) {
         console.log("PAYMENT API ERROR.....", error);
         toast.error("Could not make Payment");
+        activeCheckoutKeys.delete(idempotencyKey);
         dispatch(setPaymentLoading(false));
     }
     toast.dismiss(toastId);
@@ -105,7 +133,14 @@ async function sendPaymentSuccessEmail(response, amount, token) {
 }
 
 //verify payment
-async function verifyPayment(bodyData, token, navigate, dispatch, idempotencyKey) {
+async function verifyPayment(
+    bodyData,
+    token,
+    navigate,
+    dispatch,
+    idempotencyKey,
+    cartKey
+) {
     const toastId = toast.loading("Verifying Payment....");
     dispatch(setPaymentLoading(true));
     try{
@@ -118,12 +153,15 @@ async function verifyPayment(bodyData, token, navigate, dispatch, idempotencyKey
             throw new Error(response.data.message);
         }
         toast.success("payment Successful, ypou are addded to the course");
+        clearCheckoutKey(cartKey);
+        activeCheckoutKeys.delete(idempotencyKey);
         navigate("/dashboard/enrolled-courses");
         dispatch(resetCart());
     }   
     catch(error) {
         console.log("PAYMENT VERIFY ERROR....", error);
         toast.error("Could not verify Payment");
+        activeCheckoutKeys.delete(idempotencyKey);
     }
     toast.dismiss(toastId);
     dispatch(setPaymentLoading(false));

@@ -11,6 +11,10 @@ const paymentSchema = new mongoose.Schema({
     required: true,
     ref: "Course",
   }],
+  amount: {
+    type: Number,
+    required: true,
+  },
   razorpay_order_id: {
     type: String,
     required: true,
@@ -23,13 +27,15 @@ const paymentSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["processing", "completed"],
-    default: "processing",
+    enum: ["created", "paid", "failed"],
+    default: "created",
   },
   createdAt: {
     type: Date,
     default: Date.now,
   },
 })
+
+paymentSchema.index({ userId: 1, status: 1, createdAt: 1 })
 
 module.exports = mongoose.model("Payment", paymentSchema)

@@ -13,6 +13,7 @@ import CourseDetailsCard from "../components/core/Course/CourseDetailsCard"
 import { formatDate } from "../services/formatDate"
 import { fetchCourseDetails } from "../services/operations/courseDetailsAPI"
 import { buyCourse } from "../services/operations/studentFeaturesAPI"
+import { getCheckoutKey } from "../utils/checkoutKey"
 import GetAvgRating from "../utils/avgRating"
 import Error from "./Error"
 
@@ -102,8 +103,19 @@ function CourseDetails() {
   } = response.data?.courseDetails
 
   const handleBuyCourse = () => {
+    if (paymentLoading) {
+      return
+    }
     if (token) {
-      buyCourse(token, [courseId], user, navigate, dispatch)
+      buyCourse(
+        token,
+        [courseId],
+        user,
+        navigate,
+        dispatch,
+        getCheckoutKey(courseId),
+        courseId
+      )
       return
     }
     setConfirmationModal({

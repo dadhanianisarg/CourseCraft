@@ -15,13 +15,14 @@ const Payment = require("../models/Payment")
 exports.capturePayment = async (req, res) => {
   const { courses } = req.body
   const userId = req.user.id
-  if (courses.length === 0) {
+  if (!Array.isArray(courses) || courses.length === 0) {
     return res.json({ success: false, message: "Please Provide Course ID" })
   }
 
+  const requestedCourses = [...new Set(courses.map(String))]
   let total_amount = 0
 
-  for (const course_id of courses) {
+  for (const course_id of requestedCourses) {
     let course
     try {
       // Find the course by its ID
@@ -50,6 +51,30 @@ exports.capturePayment = async (req, res) => {
     }
   }
 
+  const sortedCourses = requestedCourses.sort()
+  const pendingOrders = await Payment.find({
+    userId,
+    status: "created",
+    createdAt: { $gte: new Date(Date.now() - 20 * 60 * 1000) },
+  }).sort({ createdAt: -1 })
+  const pendingOrder = pendingOrders.find(
+    (order) =>
+      order.courses.map(String).sort().join(",") === sortedCourses.join(",") &&
+      order.amount === total_amount * 100
+  )
+
+  if (pendingOrder) {
+    return res.json({
+      success: true,
+      data: {
+        id: pendingOrder.razorpay_order_id,
+        amount: pendingOrder.amount,
+        currency: "INR",
+        key_id: process.env.RAZORPAY_KEY,
+      },
+    })
+  }
+
   const options = {
     amount: total_amount * 100,
     currency: "INR",
@@ -61,13 +86,18 @@ exports.capturePayment = async (req, res) => {
     const paymentResponse = await instance.orders.create(options)
     await Payment.create({
       userId,
-      courses,
+      courses: requestedCourses,
+      amount: paymentResponse.amount,
       razorpay_order_id: paymentResponse.id,
+      status: "created",
     })
     console.log(paymentResponse)
     res.json({
       success: true,
-      data: paymentResponse,
+      data: {
+        ...paymentResponse,
+        key_id: process.env.RAZORPAY_KEY,
+      },
     })
   } catch (error) {
     console.log(error)
@@ -105,23 +135,35 @@ exports.verifyPayment = async (req, res) => {
 
   if (expectedSignature === razorpay_signature) {
     const existingPayment = await Payment.findOne({ razorpay_payment_id })
-    if (existingPayment?.status === "completed") {
+    if (existingPayment?.status === "paid") {
       return res.status(200).json({ success: true, message: "Payment Verified" })
     }
 
-    let payment = existingPayment
+    let payment
     try {
-      if (!payment) {
-        payment = await Payment.findOneAndUpdate(
-          { razorpay_order_id },
-          {
+      payment = await Payment.findOneAndUpdate(
+        {
+          userId,
+          status: "created",
+          $or: [
+            { razorpay_order_id },
+            { razorpay_payment_id },
+          ],
+        },
+        {
+          $set: {
             razorpay_payment_id,
             courses,
-            userId,
-            status: "processing",
+            status: "paid",
           },
-          { new: true, upsert: true, setDefaultsOnInsert: true }
-        )
+        },
+        { new: true }
+      )
+      if (!payment) {
+        if (existingPayment?.status === "paid") {
+          return res.status(200).json({ success: true, message: "Payment Verified" })
+        }
+        return res.status(400).json({ success: false, message: "Payment order not found" })
       }
     } catch (error) {
       if (error.code === 11000) {
@@ -129,9 +171,7 @@ exports.verifyPayment = async (req, res) => {
       }
       throw error
     }
-
     await enrollStudents(courses, userId)
-    await Payment.findByIdAndUpdate(payment._id, { status: "completed" })
     return res.status(200).json({ success: true, message: "Payment Verified" })
   }
 
