@@ -28,7 +28,8 @@ app.use(
 	cors({
 		origin: [
 			"http://localhost:3000",
-			"https://course-craft-frontend-xi.vercel.app"
+			"https://course-craft-frontend-xi.vercel.app",
+			"https://course-craft-frontend-j8n2kx9o7-nisarg-dadhanias-projects.vercel.app",
 		],
 		credentials: true,
 	})
