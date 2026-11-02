@@ -44,6 +44,11 @@ export const courseEndpoints = {
   CREATE_RATING_API: BASE_URL + "/course/createRating",
 }
 
+// AI ENDPOINTS
+export const aiEndpoints = {
+  COURSE_DRAFT_API: BASE_URL + "/ai/course-draft",
+}
+
 // RATINGS AND REVIEWS
 export const ratingsEndpoints = {
   REVIEWS_DETAILS_API: BASE_URL + "/course/getReviews",

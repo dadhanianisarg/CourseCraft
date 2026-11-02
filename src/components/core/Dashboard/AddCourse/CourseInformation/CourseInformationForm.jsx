@@ -9,6 +9,7 @@ import {
   addCourseDetails,
   editCourseDetails,
   fetchCourseCategories,
+  generateCourseDraft,
 } from "../../../../../services/operations/courseDetailsAPI"
 import { setCourse, setStep } from "../../../../../slices/courseSlice"
 import { COURSE_STATUS } from "../../../../../utils/constants"
@@ -30,6 +31,8 @@ export default function CourseInformationForm() {
   const { token } = useSelector((state) => state.auth)
   const { course, editCourse } = useSelector((state) => state.course)
   const [loading, setLoading] = useState(false)
+  const [aiLoading, setAiLoading] = useState(false)
+  const [suggestedOutline, setSuggestedOutline] = useState([])
   const [courseCategories, setCourseCategories] = useState([])
 
   useEffect(() => {
@@ -154,6 +157,41 @@ export default function CourseInformationForm() {
       dispatch(setCourse(result))
     }
     setLoading(false)
+  }
+
+  const handleGenerateCourseDraft = async () => {
+    const currentValues = getValues()
+    const title = currentValues.courseTitle?.trim() || ""
+
+    if (title.length < 5) {
+      toast.error("Course title must be at least 5 characters")
+      return
+    }
+
+    const selectedCategory = courseCategories.find(
+      (category) => category._id === currentValues.courseCategory
+    )
+
+    setAiLoading(true)
+    const draft = await generateCourseDraft(
+      {
+        title,
+        category: selectedCategory?.name,
+        level: "beginner",
+        keyPoints: "",
+      },
+      token
+    )
+    setAiLoading(false)
+
+    if (draft) {
+      setValue("courseShortDesc", draft.description)
+      setValue("courseTags", draft.tags)
+      setValue("courseBenefits", draft.whatYouWillLearn)
+      setValue("courseRequirements", draft.requirements)
+      setSuggestedOutline(draft.outline || [])
+      toast.success("AI course draft is ready to review")
+    }
   }
 
   return (
@@ -293,19 +331,46 @@ export default function CourseInformationForm() {
         errors={errors}
         getValues={getValues}
       />
+      <div className="flex flex-col gap-y-3 rounded-md border border-richblack-700 p-4">
+        <IconBtn
+          type="button"
+          disabled={loading || aiLoading}
+          onclick={handleGenerateCourseDraft}
+          text={aiLoading ? "Generating draft..." : "Generate with AI"}
+        />
+        {suggestedOutline.length > 0 && (
+          <div className="text-sm text-richblack-5">
+            <p className="font-semibold text-yellow-50">Suggested outline</p>
+            <ol className="mt-2 list-decimal space-y-2 pl-5">
+              {suggestedOutline.map((section, index) => (
+                <li key={`${section.sectionName}-${index}`}>
+                  <p>{section.sectionName}</p>
+                  <ul className="list-disc pl-5 text-richblack-300">
+                    {section.subsections?.map((subsection, subsectionIndex) => (
+                      <li key={`${subsection.title}-${subsectionIndex}`}>
+                        {subsection.title}: {subsection.description}
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+      </div>
       {/* Next Button */}
       <div className="flex justify-end gap-x-2">
         {editCourse && (
           <button
             onClick={() => dispatch(setStep(2))}
-            disabled={loading}
+            disabled={loading || aiLoading}
             className={`flex cursor-pointer items-center gap-x-2 rounded-md bg-richblack-300 py-[8px] px-[20px] font-semibold text-richblack-900`}
           >
             Continue Wihout Saving
           </button>
         )}
         <IconBtn
-          disabled={loading}
+          disabled={loading || aiLoading}
           text={!editCourse ? "Next" : "Save Changes"}
         >
           <MdNavigateNext />

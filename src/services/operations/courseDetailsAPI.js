@@ -3,7 +3,7 @@ import { toast } from "react-hot-toast"
 import { updateCompletedLectures } from "../../slices/viewCourseSlice"
 // import { setLoading } from "../../slices/profileSlice";
 import { apiConnector } from "../apiconnector"
-import { courseEndpoints } from "../apis"
+import { aiEndpoints, courseEndpoints } from "../apis"
 
 const {
   COURSE_DETAILS_API,
@@ -23,6 +23,27 @@ const {
   CREATE_RATING_API,
   LECTURE_COMPLETION_API,
 } = courseEndpoints
+const { COURSE_DRAFT_API } = aiEndpoints
+
+export const generateCourseDraft = async (data, token) => {
+  try {
+    const response = await apiConnector("POST", COURSE_DRAFT_API, data, {
+      Authorization: `Bearer ${token}`,
+    })
+    if (!response?.data?.success) {
+      throw new Error(response?.data?.message || "Could Not Generate Course Draft")
+    }
+    return response.data.data
+  } catch (error) {
+    console.log("COURSE_DRAFT_API ERROR............", error)
+    toast.error(
+      error.response?.data?.message ||
+        error.message ||
+        "Could Not Generate Course Draft"
+    )
+    return null
+  }
+}
 
 export const getAllCourses = async () => {
   const toastId = toast.loading("Loading...")
