@@ -1,22 +1,31 @@
-const nodemailer = require("nodemailer");
-
 const mailSender = async (email, title, body) => {
-    const transporter = nodemailer.createTransport({
-        host: process.env.MAIL_HOST,
-        port: Number(process.env.MAIL_PORT || 587),
-        secure: Number(process.env.MAIL_PORT) === 465,
-        auth: {
-            user: process.env.MAIL_USER,
-            pass: process.env.MAIL_PASS,
+    if (!process.env.RESEND_API_KEY || !process.env.MAIL_FROM) {
+        throw new Error("RESEND_API_KEY and MAIL_FROM must be configured")
+    }
+
+    const response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+            "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+            from: process.env.MAIL_FROM,
+            to: [email],
+            subject: title,
+            html: body,
+        }),
     })
 
-    return transporter.sendMail({
-        from: process.env.MAIL_USER,
-        to: email,
-        subject: title,
-        html: body,
-    })
+    const result = await response.json()
+    if (!response.ok) {
+        throw new Error(result.message || "Resend email delivery failed")
+    }
+
+    return {
+        messageId: result.id,
+        response: result.id,
+    }
 }
 
 
