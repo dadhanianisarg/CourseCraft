@@ -1,7 +1,7 @@
 const { GoogleGenAI } = require("@google/genai")
 
-// Allow cold starts and structured JSON generation enough time to complete.
-const REQUEST_TIMEOUT_MS = 90000
+// Keep the request below Render's request window while allowing Gemini cold starts.
+const REQUEST_TIMEOUT_MS = Number(process.env.LLM_TIMEOUT_MS || 90000)
 const MAX_RETRIES = 2
 
 const sleep = (milliseconds) =>

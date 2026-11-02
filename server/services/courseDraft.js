@@ -18,6 +18,7 @@ const generateCourseDraft = async (input) => {
             { role: "user", content: feedback },
           ]
         : messages,
+      maxTokens: 1400,
       jsonSchema: courseDraftOutputJsonSchema,
     })
     const responseText = response.text
