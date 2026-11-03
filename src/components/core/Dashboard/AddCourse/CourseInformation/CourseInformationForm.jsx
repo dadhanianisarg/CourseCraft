@@ -178,7 +178,10 @@ export default function CourseInformationForm() {
         title,
         category: selectedCategory?.name,
         level: "beginner",
-        keyPoints: "",
+        description: currentValues.courseShortDesc || "",
+        tags: (currentValues.courseTags || []).join(", "),
+        benefits: currentValues.courseBenefits || "",
+        requirements: (currentValues.courseRequirements || []).join(", "),
       },
       token
     )

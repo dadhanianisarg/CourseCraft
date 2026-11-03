@@ -5,6 +5,10 @@ const courseDraftInputSchema = z.object({
   category: z.string().trim().max(50).optional(),
   level: z.enum(["beginner", "intermediate", "advanced"]).default("beginner"),
   keyPoints: z.string().trim().max(500).optional(),
+  description: z.string().trim().max(800).optional(),
+  tags: z.string().trim().max(500).optional(),
+  benefits: z.string().trim().max(1000).optional(),
+  requirements: z.string().trim().max(1000).optional(),
 })
 
 const subsectionSchema = z.object({
