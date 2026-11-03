@@ -35,10 +35,6 @@ const chat = async ({
     systemInstruction: system,
     maxOutputTokens: maxTokens,
     temperature,
-    thinkingConfig: {
-      // Keep thinking minimal so hidden reasoning does not consume the JSON output budget.
-      thinkingBudget: 0,
-    },
     ...(jsonSchema
       ? {
           responseMimeType: "application/json",
