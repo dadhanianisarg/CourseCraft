@@ -253,6 +253,7 @@ CourseCraft-An-Online-Education-Platform/
 | `POST` | `/updateSubSection` | Instructor | Update subsection details/video |
 | `POST` | `/deleteSubSection` | Instructor | Delete subsection |
 | `GET`  | `/getAllCourses` | Public | Fetch all published courses |
+| `POST` | `/semanticSearch` | Public | Search published courses by semantic meaning |
 | `POST` | `/getCourseDetails` | Public | Fetch single course public details |
 | `POST` | `/getFullCourseDetails` | Authenticated | Fetch full course details & user progress |
 | `POST` | `/updateCourseProgress` | Student | Mark lecture video as completed |
@@ -314,6 +315,22 @@ FOLDER_NAME=CourseCraft
 RAZORPAY_KEY=your_razorpay_key_id
 RAZORPAY_SECRET=your_razorpay_secret
 RAZORPAY_WEBHOOK_SECRET=your_webhook_secret
+
+# Gemini and semantic search
+GEMINI_API_KEY=your_gemini_api_key
+LLM_MODEL=gemini-flash-lite-latest
+LLM_TIMEOUT_MS=90000
+EMBEDDING_MODEL=gemini-embedding-001
+EMBEDDING_DIMENSIONS=768
+SEMANTIC_MIN_SCORE=0.5
+
+# Google Apps Script email delivery, if enabled
+GOOGLE_APPS_SCRIPT_URL=your_apps_script_url
+GOOGLE_APPS_SCRIPT_TOKEN=your_private_mail_token
+MAIL_FROM=your_sender_email
+
+# Demo course seeding
+SEED_INSTRUCTOR_EMAIL=existing_instructor_email
 ```
 
 ### 2. Frontend Environment Configuration (`.env`)
@@ -376,6 +393,78 @@ To populate initial course categories in MongoDB (e.g. Web Development, Data Sci
 cd server
 node seedCategories.js
 ```
+
+### Demo course data
+
+The demo-course seeder requires an existing Instructor account and existing categories. It never creates missing categories:
+
+```bash
+cd server
+node scripts/seedDemoCourses.js
+```
+
+Set `SEED_INSTRUCTOR_EMAIL` in `server/.env` before running it. The script inserts 20 published demo courses, marks each with the `demo-seed` tag, skips duplicate course names, and updates instructor/category references. To remove only those demo courses:
+
+```bash
+node scripts/removeDemoCourses.js
+```
+
+## Semantic Course Search & Embeddings
+
+CourseCraft stores Gemini embedding vectors on published courses for meaning-based search. Embedding fields are hidden from normal course responses:
+
+- `embedding`: numeric vector
+- `embeddingHash`: SHA-256 hash of the indexed course text
+- `embeddingModel`: model used to generate the vector
+- `embeddingUpdatedAt`: last indexing timestamp
+
+The indexed text combines the course title, description, tags, category name, and learning outcomes. It is normalized, labeled, and limited to 6,000 characters. Documents use Gemini's `RETRIEVAL_DOCUMENT` task type, while user searches use `RETRIEVAL_QUERY`; both use the same model and dimensions so cosine similarity is meaningful.
+
+The public endpoint is:
+
+```text
+POST /api/v1/course/semanticSearch
+```
+
+Request body:
+
+```json
+{
+  "query": "make websites talk to databases",
+  "limit": 8
+}
+```
+
+The query must contain 2-200 characters and `limit` must be an integer from 1-20. The endpoint returns the best published courses, removes embeddings from the response, and uses a 0.5 minimum similarity threshold by default. Query embeddings are cached in memory for 10 minutes with a maximum of 200 entries. The endpoint is limited to 30 requests per IP every 10 minutes. If Gemini embedding fails, the server falls back to an escaped, case-insensitive keyword search over course titles, tags, and descriptions.
+
+Index published courses after deployment or after adding existing courses:
+
+```bash
+cd server
+node scripts/backfillEmbeddings.js
+```
+
+The backfill is safe to rerun because unchanged course text and model combinations are skipped. It processes courses sequentially with a one-second delay to reduce free-tier API pressure.
+
+## Demo Data and Search Evaluation
+
+The search evaluation script compares semantic ranking with plain keyword matching using 20 predefined queries:
+
+```bash
+cd server
+node scripts/evalSearch.js
+```
+
+Edit the test cases in `server/scripts/evalSearch.js` if you want to use different expected course titles. The script reports hit@3 percentages, semantic wins, keyword wins, failed matches, and whether no-match queries correctly returned no results. It requires `MONGODB_URL` and `GEMINI_API_KEY` from `server/.env`.
+
+For a direct Gemini embedding demonstration:
+
+```bash
+cd server
+node scripts/embeddingDemo.js
+```
+
+Do not commit `server/.env` or any API keys, database connection strings, mail tokens, payment secrets, or cloud credentials. Rotate credentials immediately if they are exposed.
 
 ---
 
