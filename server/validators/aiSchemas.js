@@ -1,4 +1,4 @@
-const { z } = require("zod")
+const { z } = require("zod");
 
 const courseDraftInputSchema = z.object({
   title: z.string().trim().min(5).max(100),
@@ -9,12 +9,12 @@ const courseDraftInputSchema = z.object({
   tags: z.string().trim().max(500).optional(),
   benefits: z.string().trim().max(1000).optional(),
   requirements: z.string().trim().max(1000).optional(),
-})
+});
 
 const subsectionSchema = z.object({
   title: z.string().min(1),
   description: z.string().min(1),
-})
+});
 
 const courseDraftOutputSchema = z.object({
   description: z.string().min(50).max(800),
@@ -26,11 +26,11 @@ const courseDraftOutputSchema = z.object({
       z.object({
         sectionName: z.string().min(1),
         subsections: z.array(subsectionSchema).min(2).max(8),
-      })
+      }),
     )
     .min(3)
     .max(10),
-})
+});
 
 // Zod remains the source of truth for runtime validation; keep this schema in sync for Gemini JSON mode.
 const courseDraftOutputJsonSchema = {
@@ -69,10 +69,10 @@ const courseDraftOutputJsonSchema = {
     "requirements",
     "outline",
   ],
-}
+};
 
 module.exports = {
   courseDraftInputSchema,
   courseDraftOutputSchema,
   courseDraftOutputJsonSchema,
-}
+};
