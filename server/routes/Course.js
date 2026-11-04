@@ -1,5 +1,6 @@
 // Import the required modules
 const express = require("express")
+const { rateLimit } = require("express-rate-limit")
 const router = express.Router()
 
 // Import the Controllers
@@ -14,6 +15,7 @@ const {
   getInstructorCourses,
   deleteCourse,
 } = require("../controllers/Course")
+const { semanticSearch } = require("../controllers/SemanticSearch")
 
 
 // Categories Controllers Import
@@ -71,6 +73,21 @@ router.post("/deleteSubSection", auth, isInstructor, deleteSubSection)
 router.post("/addSubSection", auth, isInstructor, createSubSection)
 // Get all Registered Courses
 router.get("/getAllCourses", getAllCourses)
+router.post(
+  "/semanticSearch",
+  rateLimit({
+    windowMs: 10 * 60 * 1000,
+    limit: 30,
+    standardHeaders: "draft-7",
+    legacyHeaders: false,
+    handler: (req, res) =>
+      res.status(429).json({
+        success: false,
+        message: "Too many search requests. Please try again later.",
+      }),
+  }),
+  semanticSearch
+)
 // Get Details for a Specific Courses
 router.post("/getCourseDetails", getCourseDetails)
 // Get Details for a Specific Courses

@@ -18,6 +18,7 @@ const IdempotencyKey = require("./models/IdempotencyKey");
 
 dotenv.config();
 const PORT = process.env.PORT || 4000;
+app.set("trust proxy", 1);
 
 //database connect
 database.connect();

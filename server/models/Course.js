@@ -49,6 +49,22 @@ const coursesSchema = new mongoose.Schema({
 	instructions: {
 		type: [String],
 	},
+	embedding: {
+		type: [Number],
+		select: false,
+	},
+	embeddingHash: {
+		type: String,
+		select: false,
+	},
+	embeddingModel: {
+		type: String,
+		select: false,
+	},
+	embeddingUpdatedAt: {
+		type: Date,
+		select: false,
+	},
 	status: {
 		type: String,
 		enum: ["Draft", "Published"],

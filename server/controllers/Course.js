@@ -7,6 +7,7 @@ const { uploadImageToCloudinary } = require("../utils/imageUploader");
 const CourseProgress = require("../models/CourseProgress");
 const { convertSecondsToDuration } = require("../utils/secToDuration");
 const { sendVersionConflict, isVersionConflict } = require("../utils/concurrency");
+const { indexCourse } = require("../services/courseIndexer");
 // Function to create a new course
 exports.createCourse = async (req, res) => {
   try {
@@ -116,6 +117,11 @@ exports.createCourse = async (req, res) => {
       { new: true },
     );
     console.log("HEREEEEEEEE", categoryDetails2);
+    if (newCourse.status === "Published") {
+      indexCourse(newCourse._id).catch((error) => {
+        console.error("Course indexing failed:", error.message);
+      });
+    }
     // Return the new course and a success message
     res.status(200).json({
       success: true,
@@ -172,6 +178,12 @@ exports.editCourse = async (req, res) => {
     }
 
     await course.save();
+
+    if (course.status === "Published") {
+      indexCourse(course._id).catch((error) => {
+        console.error("Course indexing failed:", error.message);
+      });
+    }
 
     const updatedCourse = await Course.findOne({
       _id: courseId,

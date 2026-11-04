@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom'
 import { apiConnector } from '../services/apiconnector';
 import { categories } from '../services/apis';
 import { getCatalogaPageData } from '../services/operations/pageAndComponentData';
+import { semanticSearchCourses } from '../services/operations/courseDetailsAPI';
 import CourseCard from '../components/core/Catalog/CourseCard';
 import CourseSlider from '../components/core/Catalog/CourseSlider';
 import { useSelector } from "react-redux"
@@ -16,6 +17,10 @@ const Catalog = () => {
   const [active, setActive] = useState(1)
     const [catalogPageData, setCatalogPageData] = useState(null);
     const [categoryId, setCategoryId] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
+    const [searchResults, setSearchResults] = useState([]);
+    const [searchFallback, setSearchFallback] = useState(false);
+    const [searchLoading, setSearchLoading] = useState(false);
 
     //Fetch all categories
     useEffect(()=> {
@@ -44,6 +49,42 @@ const Catalog = () => {
         }
         
     },[categoryId]);
+
+    useEffect(() => {
+        const trimmedQuery = searchQuery.trim();
+        if (trimmedQuery.length < 3) {
+            setSearchResults([]);
+            setSearchFallback(false);
+            setSearchLoading(false);
+            return undefined;
+        }
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(async () => {
+            setSearchLoading(true);
+            try {
+                const response = await semanticSearchCourses(trimmedQuery, controller.signal);
+                if (!controller.signal.aborted) {
+                    setSearchResults(response.data || []);
+                    setSearchFallback(response.fallback === true);
+                }
+            } catch (error) {
+                if (!controller.signal.aborted) {
+                    setSearchResults([]);
+                    setSearchFallback(false);
+                }
+            } finally {
+                if (!controller.signal.aborted) {
+                    setSearchLoading(false);
+                }
+            }
+        }, 400);
+
+        return () => {
+            clearTimeout(timeoutId);
+            controller.abort();
+        };
+    }, [searchQuery]);
 
 
     if (loading || !catalogPageData) {
@@ -78,6 +119,45 @@ const Catalog = () => {
           </div>
     
           {/* Section 1 */}
+          <div className=" mx-auto box-content w-full max-w-maxContentTab px-4 py-12 lg:max-w-maxContent">
+            <div className="mb-10">
+              <div className="mb-3 flex items-center gap-2">
+                <label htmlFor="course-search" className="text-xl text-richblack-5">
+                  Find a course
+                </label>
+                <span className="rounded-full bg-richblack-700 px-2 py-1 text-xs text-yellow-25">
+                  {searchFallback ? "Showing keyword results" : "AI search"}
+                </span>
+              </div>
+              <input
+                id="course-search"
+                type="search"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search courses by topic or skill"
+                className="w-full rounded-lg border border-richblack-600 bg-richblack-700 px-4 py-3 text-richblack-5 outline-none placeholder:text-richblack-400 focus:border-yellow-25"
+              />
+              {searchQuery.trim().length >= 3 && (
+                <div className="mt-6">
+                  {searchLoading ? (
+                    <div className="flex justify-center py-8">
+                      <div className="spinner"></div>
+                    </div>
+                  ) : searchResults.length ? (
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                      {searchResults.map(({ course }) => (
+                        <CourseCard course={course} key={course._id} Height={"h-[250px]"} />
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-richblack-200">No close matches. Try different words.</p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+          {searchQuery.trim().length < 3 && (
+            <>
           <div className=" mx-auto box-content w-full max-w-maxContentTab px-4 py-12 lg:max-w-maxContent">
             <div className="section_heading">Courses to get you started</div>
             <div className="my-4 flex border-b border-b-richblack-600 text-sm">
@@ -133,7 +213,8 @@ const Catalog = () => {
               </div>
             </div>
           </div>
-    
+          </>
+          )}
           <Footer />
         </>
       )

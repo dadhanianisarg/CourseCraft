@@ -22,6 +22,7 @@ const {
   GET_FULL_COURSE_DETAILS_AUTHENTICATED,
   CREATE_RATING_API,
   LECTURE_COMPLETION_API,
+  SEMANTIC_SEARCH_API,
 } = courseEndpoints
 const { COURSE_DRAFT_API } = aiEndpoints
 
@@ -53,6 +54,7 @@ export const getAllCourses = async () => {
     if (!response?.data?.success) {
       throw new Error("Could Not Fetch Course Categories")
     }
+
     result = response?.data?.data
   } catch (error) {
     console.log("GET_ALL_COURSE_API API ERROR............", error)
@@ -60,6 +62,23 @@ export const getAllCourses = async () => {
   }
   toast.dismiss(toastId)
   return result
+}
+
+export const semanticSearchCourses = async (query, signal) => {
+  const response = await apiConnector(
+    "POST",
+    SEMANTIC_SEARCH_API,
+    { query },
+    null,
+    null,
+    { signal }
+  )
+
+  if (!response?.data?.success) {
+    throw new Error(response?.data?.message || "Could Not Search Courses")
+  }
+
+  return response.data
 }
 
 export const fetchCourseDetails = async (courseId) => {
