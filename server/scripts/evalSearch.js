@@ -10,7 +10,13 @@ const { embedQuery, cosineSimilarity } = require("../services/embeddings");
 
 const DELAY_MS = 1000;
 const TOP_K = 3;
-const MIN_SCORE = Number(process.env.SEMANTIC_MIN_SCORE || 0.5);
+const configuredMinimumScore = Number(process.env.SEMANTIC_MIN_SCORE);
+const MIN_SCORE =
+	Number.isFinite(configuredMinimumScore) &&
+	configuredMinimumScore >= 0 &&
+	configuredMinimumScore <= 1
+		? configuredMinimumScore
+		: 0.5;
 const MONGOOSE_OPTIONS = {
 	useNewUrlParser: true,
 	useUnifiedTopology: true,

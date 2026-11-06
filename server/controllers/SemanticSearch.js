@@ -9,7 +9,10 @@ const CACHE_TTL_MS = 10 * 60 * 1000
 const MAX_CACHE_ENTRIES = 200
 const COURSE_CARD_SELECT =
   "courseName courseDescription tag category thumbnail price instructor ratingAndReviews"
-const getMinimumScore = () => Number(process.env.SEMANTIC_MIN_SCORE || 0.5)
+const getMinimumScore = () => {
+  const score = Number(process.env.SEMANTIC_MIN_SCORE)
+  return Number.isFinite(score) && score >= 0 && score <= 1 ? score : 0.5
+}
 
 const populateCourseCardFields = (query) =>
   query
@@ -80,8 +83,25 @@ exports.semanticSearch = async (req, res) => {
   const { query, limit } = validation.data
   const normalizedQuery = query.toLowerCase()
 
+  let queryEmbedding
   try {
-    const queryEmbedding = await getCachedQueryEmbedding(normalizedQuery)
+    queryEmbedding = await getCachedQueryEmbedding(normalizedQuery)
+  } catch (error) {
+    console.error("Semantic search provider failed:", error.message)
+
+    try {
+      const results = await keywordFallback(query, limit)
+      return res.status(200).json({ success: true, data: results, fallback: true })
+    } catch (fallbackError) {
+      console.error("Semantic search fallback failed:", fallbackError.message)
+      return res.status(500).json({
+        success: false,
+        message: "Search is temporarily unavailable. Please try again.",
+      })
+    }
+  }
+
+  try {
     const courses = await populateCourseCardFields(
       Course.find({ status: "Published" })
     ).exec()
@@ -99,17 +119,10 @@ exports.semanticSearch = async (req, res) => {
 
     return res.status(200).json({ success: true, data: results })
   } catch (error) {
-    console.error("Semantic search provider failed:", error.message)
-
-    try {
-      const results = await keywordFallback(query, limit)
-      return res.status(200).json({ success: true, data: results, fallback: true })
-    } catch (fallbackError) {
-      console.error("Semantic search fallback failed:", fallbackError.message)
-      return res.status(500).json({
-        success: false,
-        message: "Search is temporarily unavailable. Please try again.",
-      })
-    }
+    console.error("Semantic search failed:", error.message)
+    return res.status(500).json({
+      success: false,
+      message: "Search is temporarily unavailable. Please try again.",
+    })
   }
 }

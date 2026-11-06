@@ -21,6 +21,7 @@ const Catalog = () => {
     const [searchResults, setSearchResults] = useState([]);
     const [searchFallback, setSearchFallback] = useState(false);
     const [searchLoading, setSearchLoading] = useState(false);
+    const [searchError, setSearchError] = useState(false);
 
     //Fetch all categories
     useEffect(()=> {
@@ -56,6 +57,7 @@ const Catalog = () => {
             setSearchResults([]);
             setSearchFallback(false);
             setSearchLoading(false);
+            setSearchError(false);
             return undefined;
         }
 
@@ -67,11 +69,13 @@ const Catalog = () => {
                 if (!controller.signal.aborted) {
                     setSearchResults(response.data || []);
                     setSearchFallback(response.fallback === true);
+                    setSearchError(false);
                 }
             } catch (error) {
                 if (!controller.signal.aborted) {
                     setSearchResults([]);
                     setSearchFallback(false);
+                    setSearchError(true);
                 }
             } finally {
                 if (!controller.signal.aborted) {
@@ -149,6 +153,8 @@ const Catalog = () => {
                         <CourseCard course={course} key={course._id} Height={"h-[250px]"} />
                       ))}
                     </div>
+                  ) : searchError ? (
+                    <p className="text-richblack-200">Search is unavailable right now. Try again shortly.</p>
                   ) : (
                     <p className="text-richblack-200">No close matches. Try different words.</p>
                   )}

@@ -1,8 +1,9 @@
 const { GoogleGenAI } = require("@google/genai")
 
-// Keep the request below Render's request window while allowing Gemini cold starts.
-const REQUEST_TIMEOUT_MS = Number(process.env.LLM_TIMEOUT_MS || 90000)
 const MAX_RETRIES = 2
+
+// Keep the request below Render's request window while allowing Gemini cold starts.
+const getRequestTimeout = () => Number(process.env.LLM_TIMEOUT_MS || 90000)
 
 const sleep = (milliseconds) =>
   new Promise((resolve) => setTimeout(resolve, milliseconds))
@@ -45,7 +46,7 @@ const chat = async ({
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
     const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+    const timeout = setTimeout(() => controller.abort(), getRequestTimeout())
 
     try {
       const response = await ai.models.generateContent({

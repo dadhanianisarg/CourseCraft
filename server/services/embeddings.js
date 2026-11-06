@@ -1,11 +1,17 @@
 const { GoogleGenAI } = require("@google/genai")
 
-const EMBEDDING_MODEL = process.env.EMBEDDING_MODEL || "gemini-embedding-001"
-const EMBEDDING_DIMENSIONS = Number(process.env.EMBEDDING_DIMENSIONS || 768)
 const REQUEST_TIMEOUT_MS = 20000
 const MAX_RETRIES = 2
 const BATCH_SIZE = 10
 const BATCH_DELAY_MS = 1000
+
+const getEmbeddingModel = () =>
+  process.env.EMBEDDING_MODEL || "gemini-embedding-001"
+
+const getEmbeddingDimensions = () => {
+  const dimensions = Number(process.env.EMBEDDING_DIMENSIONS)
+  return Number.isInteger(dimensions) && dimensions > 0 ? dimensions : 768
+}
 
 const sleep = (milliseconds) =>
   new Promise((resolve) => setTimeout(resolve, milliseconds))
@@ -18,10 +24,10 @@ const isRetryable = (error) => {
   return status === 429 || (status >= 500 && status <= 599)
 }
 
-const validateEmbedding = (embedding) => {
-  if (!Array.isArray(embedding) || embedding.length !== EMBEDDING_DIMENSIONS) {
+const validateEmbedding = (embedding, dimensions) => {
+  if (!Array.isArray(embedding) || embedding.length !== dimensions) {
     throw new Error(
-      `Embedding vector length ${embedding?.length || 0} does not match configured dimensions ${EMBEDDING_DIMENSIONS}`
+      `Embedding vector length ${embedding?.length || 0} does not match configured dimensions ${dimensions}`
     )
   }
 
@@ -34,9 +40,11 @@ const requestEmbedding = async ({ text, taskType, title }) => {
   }
 
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
+  const model = getEmbeddingModel()
+  const dimensions = getEmbeddingDimensions()
   const config = {
     taskType,
-    outputDimensionality: EMBEDDING_DIMENSIONS,
+    outputDimensionality: dimensions,
     ...(title ? { title } : {}),
   }
 
@@ -46,7 +54,7 @@ const requestEmbedding = async ({ text, taskType, title }) => {
 
     try {
       const response = await ai.models.embedContent({
-        model: EMBEDDING_MODEL,
+        model,
         contents: text,
         config: {
           ...config,
@@ -55,7 +63,7 @@ const requestEmbedding = async ({ text, taskType, title }) => {
       })
       const values = response.embeddings?.[0]?.values
 
-      return validateEmbedding(values)
+      return validateEmbedding(values, dimensions)
     } catch (error) {
       if (attempt === MAX_RETRIES || !isRetryable(error)) {
         throw error
