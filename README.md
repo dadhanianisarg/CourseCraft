@@ -21,6 +21,8 @@
   - [👨‍🎓 Student Portal](#-student-portal)
   - [👩‍🏫 Instructor Portal](#-instructor-portal)
   - [🔒 Security & Authentication](#-security--authentication)
+  - [🤖 AI Features](#-ai-features)
+  - [🔎 Semantic Search](#-semantic-search)
 - [Tech Stack](#-tech-stack)
 - [System Architecture](#-system-architecture)
 - [Database Schema & Data Models](#-database-schema--data-models)
@@ -45,6 +47,8 @@ CourseCraft addresses the modern challenge of online education by offering an al
 - **Secure Payment Gateway Integration**: Native checkout powered by **Razorpay** with automated email payment receipts.
 - **Cloud-Based Media Management**: Media streaming and asset storage handled via **Cloudinary**.
 - **Real-Time Instructor Analytics**: Interactive performance dashboards using **Chart.js** displaying student enrollment and total revenue metrics.
+- **AI-Assisted Course Drafting**: Gemini generates structured course descriptions, tags, learning outcomes, requirements, and outlines for instructor review.
+- **Meaning-Based Course Discovery**: Gemini embeddings rank published courses by semantic similarity, with caching and keyword fallback.
 
 ---
 
@@ -70,11 +74,26 @@ CourseCraft addresses the modern challenge of online education by offering an al
 * **Course Management**: View all created courses, inspect enrollment numbers, edit existing content, or remove courses.
 
 ### 🔒 Security & Authentication
-* **Email Verification via OTP**: One-Time Passwords (OTP) sent to user emails during signup powered by Nodemailer.
+* **Email Verification via OTP**: One-Time Passwords (OTP) sent through a Google Apps Script email gateway during signup.
 * **Role-Based Access Control (RBAC)**: Enforced backend middleware (`isStudent`, `isInstructor`, `isAdmin`) safeguarding sensitive endpoints.
 * **JWT & Cookie Authentication**: Secure HTTP-only cookies and JSON Web Tokens for session management.
 * **Password Encryption**: Password hashing utilizing `bcrypt`.
 * **Password Reset Workflow**: Tokenized password reset links sent via email with expiration limits.
+* **Optimistic Concurrency Control**: Mongoose versioning prevents lost updates when users edit the same course, section, subsection, or profile concurrently.
+* **Payment Idempotency**: Idempotency keys, request hashes, replayed responses, and atomic updates prevent duplicate payment orders and enrollments.
+
+### 🤖 AI Features
+* **Instructor Course Drafting**: Authenticated instructors can send course context to Gemini and receive a schema-validated draft.
+* **Structured Output**: Zod validation and Gemini JSON schema mode enforce descriptions, tags, learning outcomes, requirements, and course outlines.
+* **Corrective Retry**: Invalid, empty, or truncated responses are sent back to Gemini with correction feedback.
+* **Provider Protection**: Course drafting is limited to 20 requests per instructor per hour, with timeout and retry handling.
+
+### 🔎 Semantic Search
+* Published courses are represented by Gemini embedding vectors generated from their title, description, tags, category, and learning outcomes.
+* SHA-256 text hashes prevent unnecessary re-embedding when searchable course content is unchanged.
+* Search ranks courses with cosine similarity and a configurable minimum score.
+* Query embeddings are cached for 10 minutes, and the public endpoint is limited to 30 requests per IP every 10 minutes.
+* If embedding generation fails, the backend uses escaped case-insensitive keyword matching over course titles, tags, and descriptions.
 
 ---
 
@@ -96,8 +115,10 @@ CourseCraft addresses the modern challenge of online education by offering an al
 - **Database**: MongoDB with Mongoose ODM
 - **Payment Processing**: Razorpay Node SDK (`razorpay`)
 - **File & Media Storage**: Cloudinary SDK (`cloudinary`, `express-fileupload`)
-- **Mailing Service**: Nodemailer (`nodemailer`)
+- **Email Delivery**: Google Apps Script gateway accessed from the backend with `fetch`
+- **AI Services**: Google Gemini via `@google/genai`
 - **Security**: JSON Web Token (`jsonwebtoken`), Bcrypt (`bcrypt`), Cookie Parser (`cookie-parser`), CORS (`cors`)
+- **Validation & Limits**: Zod (`zod`), Express Rate Limit (`express-rate-limit`)
 
 ---
 
@@ -126,7 +147,7 @@ CourseCraft follows a decoupled Client-Server RESTful Architecture:
              |                       |                      |
              v                       v                      v
 +-----------------------+  +-------------------+  +---------------------+
-| MongoDB (Atlas)       |  | Cloudinary API    |  | Nodemailer (SMTP)   |
+| MongoDB (Atlas)       |  | Cloudinary API    |  | Google Apps Script |
 | Database & Schemas    |  | Videos & Images   |  | OTP & Email Notices |
 +-----------------------+  +-------------------+  +---------------------+
 ```
@@ -157,11 +178,10 @@ CourseCraft relies on 9 interconnected Mongoose models:
 CourseCraft-An-Online-Education-Platform/
 ├── public/                     # Static assets & index.html
 ├── server/                     # Backend Node/Express Server
-│   ├── config/                 # DB, Cloudinary, Razorpay & Mailer configs
+│   ├── config/                 # DB, Cloudinary and Razorpay configs
 │   │   ├── database.js
 │   │   ├── cloudinary.js
 │   │   ├── razorpay.js
-│   │   └── nodemailer.js
 │   ├── controllers/            # API Route Logic & Handlers
 │   │   ├── Auth.js
 │   │   ├── Category.js
@@ -281,10 +301,17 @@ CourseCraft-An-Online-Education-Platform/
 | `POST` | `/verifyPayment` | Student | Verify Razorpay payment signature & enroll student |
 | `POST` | `/sendPaymentSuccessEmail` | Student | Send email receipt after successful payment |
 
+Payment capture and verification require an `Idempotency-Key` header. The unique scope is `userId + key + endpoint`; completed responses can be replayed safely, and request-body changes with the same key are rejected.
+
 ### 📧 Contact Route (`/api/v1/reach`)
 | Method | Endpoint | Access | Description |
 | :--- | :--- | :--- | :--- |
 | `POST` | `/contact` | Public | Submit contact us message |
+
+### 🤖 AI Routes (`/api/v1/ai`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/course-draft` | Instructor | Generate a structured Gemini course draft |
 
 ---
 
@@ -298,12 +325,6 @@ Create a `.env` file inside the `server/` directory:
 PORT=4000
 MONGODB_URL=mongodb+srv://<username>:<password>@cluster.mongodb.net/CourseCraftDb
 JWT_SECRET=your_jwt_secret_key
-
-# Nodemailer Credentials
-MAIL_HOST=smtp.gmail.com
-MAIL_USER=your_email@gmail.com
-MAIL_PASS=your_gmail_app_password
-MAIL_PORT=587
 
 # Cloudinary Credentials
 CLOUD_NAME=your_cloudinary_cloud_name
@@ -324,10 +345,9 @@ EMBEDDING_MODEL=gemini-embedding-001
 EMBEDDING_DIMENSIONS=768
 SEMANTIC_MIN_SCORE=0.5
 
-# Google Apps Script email delivery, if enabled
+# Google Apps Script email delivery
 GOOGLE_APPS_SCRIPT_URL=your_apps_script_url
 GOOGLE_APPS_SCRIPT_TOKEN=your_private_mail_token
-MAIL_FROM=your_sender_email
 
 # Demo course seeding
 SEED_INSTRUCTOR_EMAIL=existing_instructor_email
